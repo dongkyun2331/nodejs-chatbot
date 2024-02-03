@@ -1,4 +1,7 @@
 const readline = require("readline");
+const axios = require("axios");
+const { error } = require("console");
+require("dotenv").config();
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -6,13 +9,63 @@ const rl = readline.createInterface({
 });
 
 function askQuestion() {
-  rl.question("1: 정보처리기사 필기\n", (input) => {
+  rl.question("1: 정보처리기사 필기\n2: 날씨\n", (input) => {
     if (input === "1") {
       askYear();
+    }
+    if (input === "2") {
+      askCityForWeather();
     } else {
       askQuestion(); // 다시 묻기
     }
   });
+}
+
+const cityNameMap = {
+  부산: "Busan",
+  서울: "Seoul",
+  대구: "Daegu",
+  인천: "Incheon",
+  광주: "Gwangju",
+  대전: "Daejeon",
+  울산: "Ulsan",
+  세종: "Sejong",
+  경기도: "Gyeonggi-do",
+  강원도: "Gangwon-do",
+  충청북도: "Chungcheongbuk-do",
+  충청남도: "Chungcheongnam-do",
+  전라북도: "Jeollabuk-do",
+  전라남도: "Jeollanam-do",
+  경상북도: "Gyeongsangbuk-do",
+  경상남도: "Gyeongsangnam-do",
+  제주도: "Jeju-do",
+  // 지원하는 도시들에 대해서 추가로 매핑 정보를 입력해주세요.
+};
+
+function askCityForWeather() {
+  rl.question("날씨를 확인할 city를 입력하세요:", (cityName) => {
+    getWeather(cityName);
+  });
+}
+
+function getWeather(cityName) {
+  const city = cityNameMap[cityName] || cityName;
+  const apiKey = process.env.OPENWEATHERMAP_API_KEY;
+  const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=en`;
+
+  fetch(apiUrl)
+    .then((response) => response.json())
+    .then((data) => {
+      const { weather, main } = data;
+      const description = weather[0].description;
+      const temp = main.temp;
+      console.log(`${cityName} ${description}, ${temp}도`);
+      askQuestion();
+    })
+    .catch((error) => {
+      console.error("날씨 데이터를 가져오는 중 오류 발생:", error.message);
+      askQuestion();
+    });
 }
 
 function askYear() {
@@ -41,22 +94,31 @@ function softwareDesign() {
     (input) => {
       if (input === "1") {
         console.log("오답");
+        console.log(
+          "순차 다이어그래은 행위 다어어그램이므로 동적이고, 순차적인 표현을 위한 다이어그램이다,"
+        );
       }
       if (input === "2") {
         console.log("정답");
+        console.log(
+          "순차 다이어그래은 행위 다어어그램이므로 동적이고, 순차적인 표현을 위한 다이어그램이다,"
+        );
         softwareDesign2();
       }
       if (input === "3") {
         console.log("오답");
+        console.log(
+          "순차 다이어그래은 행위 다어어그램이므로 동적이고, 순차적인 표현을 위한 다이어그램이다,"
+        );
       }
       if (input === "4") {
         console.log("오답");
+        console.log(
+          "순차 다이어그래은 행위 다어어그램이므로 동적이고, 순차적인 표현을 위한 다이어그램이다,"
+        );
       } else {
         softwareDesign();
       }
-      console.log(
-        "순차 다이어그래은 행위 다어어그램이므로 동적이고, 순차적인 표현을 위한 다이어그램이다,"
-      );
     }
   );
 }
@@ -67,21 +129,30 @@ function softwareDesign2() {
     (input) => {
       if (input === "1") {
         console.log("정답");
+        console.log(
+          "MOM(Message Oriented Middleware)\n- 메시지 기반의 비동기형 메시지를 전달하는 방식의 미들웨어이다.\n- 온라인 업무보다는 이기종 분산 데이터 시스템의 데이터 동기를 위해 많이 사용한다.\n\nMoM(Message Oriented Middleware)은 즉각적인 응답을 원하는 경우가 아니라 다소 느리고 안정적인 응답을 필요로 하는 경우에 많이 사용됩니다."
+        );
       }
       if (input === "2") {
         console.log("오답");
+        console.log(
+          "MOM(Message Oriented Middleware)\n- 메시지 기반의 비동기형 메시지를 전달하는 방식의 미들웨어이다.\n- 온라인 업무보다는 이기종 분산 데이터 시스템의 데이터 동기를 위해 많이 사용한다.\n\nMoM(Message Oriented Middleware)은 즉각적인 응답을 원하는 경우가 아니라 다소 느리고 안정적인 응답을 필요로 하는 경우에 많이 사용됩니다."
+        );
       }
       if (input === "3") {
         console.log("오답");
+        console.log(
+          "MOM(Message Oriented Middleware)\n- 메시지 기반의 비동기형 메시지를 전달하는 방식의 미들웨어이다.\n- 온라인 업무보다는 이기종 분산 데이터 시스템의 데이터 동기를 위해 많이 사용한다.\n\nMoM(Message Oriented Middleware)은 즉각적인 응답을 원하는 경우가 아니라 다소 느리고 안정적인 응답을 필요로 하는 경우에 많이 사용됩니다."
+        );
       }
       if (input === "4") {
         console.log("오답");
+        console.log(
+          "MOM(Message Oriented Middleware)\n- 메시지 기반의 비동기형 메시지를 전달하는 방식의 미들웨어이다.\n- 온라인 업무보다는 이기종 분산 데이터 시스템의 데이터 동기를 위해 많이 사용한다.\n\nMoM(Message Oriented Middleware)은 즉각적인 응답을 원하는 경우가 아니라 다소 느리고 안정적인 응답을 필요로 하는 경우에 많이 사용됩니다."
+        );
       } else {
         softwareDesign2();
       }
-      console.log(
-        "MOM(Message Oriented Middleware)\n- 메시지 기반의 비동기형 메시지를 전달하는 방식의 미들웨어이다.\n- 온라인 업무보다는 이기종 분산 데이터 시스템의 데이터 동기를 위해 많이 사용한다.\n\nMoM(Message Oriented Middleware)은 즉각적인 응답을 원하는 경우가 아니라 다소 느리고 안정적인 응답을 필요로 하는 경우에 많이 사용됩니다."
-      );
     }
   );
 }
