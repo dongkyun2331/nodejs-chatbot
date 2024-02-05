@@ -8,28 +8,37 @@ const rl = readline.createInterface({
 });
 
 function askQuestion() {
-  rl.question("1: 날씨\n2: 이번주 날씨\n3: 뉴스\n4: 크립토\n", (input) => {
-    if (input === "1") {
-      askCityForWeather();
+  rl.question(
+    "1: 날씨\n2: 이번주 날씨\n3: 최신 뉴스\n4: 키워드 뉴스\n",
+    (input) => {
+      if (input === "1") {
+        askCityForWeather();
+      }
+      if (input === "2") {
+        // 이번주 날씨 조회 함수 호출
+        askCityForWeeklyWeather();
+      }
+      if (input === "3") {
+        getNews();
+      }
+      if (input === "4") {
+        askNews();
+      } else {
+        askQuestion(); // 다시 묻기
+      }
     }
-    if (input === "2") {
-      // 이번주 날씨 조회 함수 호출
-      askCityForWeeklyWeather();
-    }
-    if (input === "3") {
-      getNews();
-    }
-    if (input === "4") {
-      getCryptoNews();
-    } else {
-      askQuestion(); // 다시 묻기
-    }
+  );
+}
+
+function askNews() {
+  rl.question("키워드를 입력하세요:", (keyword) => {
+    getKeywordNews(keyword);
   });
 }
 
-function getCryptoNews() {
+function getKeywordNews(keyword) {
   const apiKey = process.env.NEWS_API_KEY; // Replace with your cryptocurrency news API key
-  const apiUrl = `https://newsapi.org/v2/everything?q=crypto&apiKey=${apiKey}`;
+  const apiUrl = `https://newsapi.org/v2/everything?q=${keyword}&apiKey=${apiKey}`;
 
   axios
     .get(apiUrl)
