@@ -8,16 +8,72 @@ const rl = readline.createInterface({
 });
 
 function askQuestion() {
-  rl.question("1: 날씨\n2: 이번주 날씨\n", (input) => {
+  rl.question("1: 날씨\n2: 이번주 날씨\n3: 뉴스\n4: 크립토\n", (input) => {
     if (input === "1") {
       askCityForWeather();
-    } else if (input === "2") {
+    }
+    if (input === "2") {
       // 이번주 날씨 조회 함수 호출
       askCityForWeeklyWeather();
+    }
+    if (input === "3") {
+      getNews();
+    }
+    if (input === "4") {
+      getCryptoNews();
     } else {
       askQuestion(); // 다시 묻기
     }
   });
+}
+
+function getCryptoNews() {
+  const apiKey = process.env.NEWS_API_KEY; // Replace with your cryptocurrency news API key
+  const apiUrl = `https://newsapi.org/v2/everything?q=crypto&apiKey=${apiKey}`;
+
+  axios
+    .get(apiUrl)
+    .then((response) => {
+      const articles = response.data.articles;
+      console.log("📰 최신 크립토 소식입니다:");
+
+      articles.forEach((article) => {
+        console.log(`🔹 ${article.title}`);
+        console.log(`${article.url}\n`);
+      });
+
+      askQuestion();
+    })
+    .catch((error) => {
+      console.error(
+        "크립토 뉴스 데이터를 가져오는 중 오류 발생:",
+        error.message
+      );
+      askQuestion();
+    });
+}
+
+function getNews() {
+  const apiKey = process.env.NEWS_API_KEY;
+  const apiUrl = `https://newsapi.org/v2/top-headlines?country=kr&apiKey=${apiKey}`;
+
+  axios
+    .get(apiUrl)
+    .then((response) => {
+      const articles = response.data.articles;
+      console.log("📰 최신 뉴스 기사입니다:");
+
+      articles.forEach((article) => {
+        console.log(`🔹 ${article.title}`);
+        console.log(`${article.url}\n`);
+      });
+
+      askQuestion();
+    })
+    .catch((error) => {
+      console.error("뉴스 데이터를 가져오는 중 오류 발생:", error.message);
+      askQuestion();
+    });
 }
 
 const cityNameMap = {
