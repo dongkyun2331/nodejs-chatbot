@@ -9,7 +9,7 @@ const rl = readline.createInterface({
 
 function askQuestion() {
   rl.question(
-    "1: 날씨\n2: 이번주 날씨\n3: 최신 뉴스\n4: 키워드 뉴스\n",
+    "1: 날씨 2: 이번주 날씨 3: 최신 뉴스 4: 키워드 뉴스 5: coingecko\n",
     (input) => {
       if (input === "1") {
         askCityForWeather();
@@ -23,11 +23,61 @@ function askQuestion() {
       }
       if (input === "4") {
         askNews();
+      }
+      if (input === "5") {
+        askTop();
       } else {
         askQuestion(); // 다시 묻기
       }
     }
   );
+}
+
+function formatMarketCap(marketCap) {
+  const trillion = 1e12;
+  const billion = 1e8; // 억 단위로 변경
+  const million = 1e4; // 만 단위로 변경
+
+  if (marketCap >= trillion) {
+    return (marketCap / trillion).toFixed(2) + " 조";
+  } else if (marketCap >= billion) {
+    return (marketCap / billion).toFixed(2) + " 억";
+  } else if (marketCap >= million) {
+    return (marketCap / million).toFixed(2) + " 만";
+  } else {
+    return formatNumber(marketCap);
+  }
+}
+
+function getTop(top) {
+  const apiUrl = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${top}&page=1&sparkline=true&price_change_percentage=24h`;
+
+  axios
+    .get(apiUrl)
+    .then((response) => {
+      const coinData = response.data;
+      coinData.forEach((coin, index) => {
+        console.log(
+          `${index + 1}. ${coin.name}: ${coin.current_price} (${
+            coin.price_change_percentage_24h
+          }%) 시가총액: $ ${formatMarketCap(coin.market_cap)}`
+        );
+      });
+      askQuestion();
+    })
+    .catch((error) => {
+      console.error(
+        "코인 시가총액 데이터를 가져오는 중 오류 발생:",
+        error.message
+      );
+      askQuestion();
+    });
+}
+
+function askTop() {
+  rl.question("시가총액 몇 위까지?:", (top) => {
+    getTop(top);
+  });
 }
 
 function askNews() {
@@ -44,7 +94,7 @@ function getKeywordNews(keyword) {
     .get(apiUrl)
     .then((response) => {
       const articles = response.data.articles;
-      console.log("📰 최신 크립토 소식입니다:");
+      console.log(`📰 최신 ${keyword} 소식입니다:`);
 
       articles.forEach((article) => {
         console.log(`🔹 ${article.title}`);
@@ -86,7 +136,24 @@ function getNews() {
 }
 
 const cityNameMap = {
-  // ... (기존 도시 매핑 정보)
+  부산: "Busan",
+  서울: "Seoul",
+  대구: "Daegu",
+  인천: "Incheon",
+  광주: "Gwangju",
+  대전: "Daejeon",
+  울산: "Ulsan",
+  세종: "Sejong",
+  경기도: "Gyeonggi-do",
+  강원도: "Gangwon-do",
+  충청북도: "Chungcheongbuk-do",
+  충청남도: "Chungcheongnam-do",
+  전라북도: "Jeollabuk-do",
+  전라남도: "Jeollanam-do",
+  경상북도: "Gyeongsangbuk-do",
+  경상남도: "Gyeongsangnam-do",
+  제주도: "Jeju-do",
+  // 지원하는 도시들에 대해서 추가로 매핑 정보를 입력해주세요.
 };
 
 function askCityForWeather() {
