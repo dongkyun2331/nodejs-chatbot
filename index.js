@@ -9,7 +9,7 @@ const rl = readline.createInterface({
 
 function askQuestion() {
   rl.question(
-    "1: 날씨 2: 이번주 날씨 3: 최신 뉴스 4: 키워드 뉴스 5: coingecko 6: 한국어로 번역\n",
+    "1: 날씨 2: 이번주 날씨 3: 최신 뉴스 4: 키워드 뉴스 5: coingecko\n",
     (input) => {
       if (input === "1") {
         askCityForWeather();
@@ -26,8 +26,6 @@ function askQuestion() {
       }
       if (input === "5") {
         askTop();
-      }
-      if (input === "6") {
       } else {
         askQuestion(); // 다시 묻기
       }
