@@ -1,5 +1,6 @@
 const readline = require("readline");
 const axios = require("axios");
+const fs = require("fs");
 require("dotenv").config();
 
 const rl = readline.createInterface({
@@ -9,7 +10,7 @@ const rl = readline.createInterface({
 
 function askQuestion() {
   rl.question(
-    "1: 날씨 2: 이번주 날씨 3: 최신 뉴스 4: 키워드 뉴스 5: coingecko\n",
+    "1: 날씨 2: 이번주 날씨 3: 최신 뉴스 4: 키워드 뉴스 5: coingecko 6: pixabay 7: deleteDownloadedImages\n",
     (input) => {
       if (input === "1") {
         askCityForWeather();
@@ -26,11 +27,87 @@ function askQuestion() {
       }
       if (input === "5") {
         askTop();
+      }
+      if (input === "6") {
+        askPixabay();
+      }
+      if (input === "7") {
+        deleteDownloadedImages();
       } else {
         askQuestion(); // 다시 묻기
       }
     }
   );
+}
+
+const deleteDownloadedImages = () => {
+  const directory = "./downloaded_images";
+
+  fs.readdir(directory, (err, files) => {
+    if (err) {
+      console.error("디렉토리를 읽어오는 중 오류가 발생했습니다:", err);
+      return;
+    }
+
+    for (const file of files) {
+      fs.unlink(`${directory}/${file}`, (err) => {
+        if (err) {
+          console.error(`파일을 삭제하는 중 오류가 발생했습니다: ${file}`, err);
+          return;
+        }
+        console.log(`파일 삭제 완료: ${file}`);
+      });
+    }
+  });
+};
+
+function askPixabay() {
+  rl.question("검색어를 입력하세요:", (searchTerm) => {
+    rl.question("다운로드할 이미지 수를 입력하세요:", (numberOfImages) => {
+      getPixabay(searchTerm, numberOfImages);
+    });
+  });
+}
+
+async function getPixabay(searchTerm, numberOfImages) {
+  const API_KEY = process.env.YOUR_PIXABAY_API_KEY;
+
+  try {
+    const response = await axios.get(
+      `https://pixabay.com/api/?key=${API_KEY}&q=${searchTerm}&per_page=${numberOfImages}`
+    );
+
+    const imageData = response.data.hits.map((hit) => hit.largeImageURL);
+    if (imageData.length === 0) {
+      console.log("검색된 이미지가 없습니다.");
+      askQuestion();
+      return;
+    }
+
+    // 이미지 다운로드
+    for (let i = 0; i < imageData.length; i++) {
+      await downloadImage(imageData[i], i + 1);
+    }
+  } catch (error) {
+    console.error("Pixabay API를 호출하는 동안 오류가 발생했습니다:", error);
+    askQuestion();
+  }
+}
+
+async function downloadImage(imageUrl, index) {
+  try {
+    const response = await axios.get(imageUrl, { responseType: "stream" });
+    response.data.pipe(
+      fs.createWriteStream(`./downloaded_images/image_${index}.jpg`)
+    );
+    console.log(`이미지 ${index} 다운로드 완료`);
+  } catch (error) {
+    console.error(
+      `이미지 ${index}를 다운로드하는 동안 오류가 발생했습니다:`,
+      error
+    );
+    askQuestion();
+  }
 }
 
 function formatMarketCap(marketCap) {
@@ -105,7 +182,7 @@ function getKeywordNews(keyword) {
     })
     .catch((error) => {
       console.error(
-        "크립토 뉴스 데이터를 가져오는 중 오류 발생:",
+        "키워드 뉴스 데이터를 가져오는 중 오류 발생:",
         error.message
       );
       askQuestion();
